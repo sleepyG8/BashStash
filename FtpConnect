@@ -1,0 +1,40 @@
+#!/bin/bash
+
+function ftp_shell {
+    local host=$1
+    local username=$2
+    local password=$3
+
+    # Connect to the FTP server
+    ftp -inv $host << EOF
+    user $username $password
+    ls
+    bye
+EOF
+}
+
+function ftp_anonymous_shell {
+    local host=$1
+
+    # Connect to the FTP server anonymously
+    ftp -inv $host << EOF
+    user anonymous anonymous@
+    ls
+    bye
+EOF
+}
+
+# Prompt the user for FTP server details
+read -p "Enter the FTP server address: " host
+read -p "Do you want to log in anonymously? (yes/no): " anonymous_login
+
+if [ "$anonymous_login" == "yes" ]; then
+    # Call the function for anonymous login
+    ftp_anonymous_shell $host
+else
+    read -p "Enter the username: " username
+    read -s -p "Enter the password: " password
+    echo
+    # Call the function for regular login
+    ftp_shell $host $username $password
+fi
